@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: pageviews_by_postcode
+    columns:
+      - name: _id
+        tests:
+          - unique
+          - not_null

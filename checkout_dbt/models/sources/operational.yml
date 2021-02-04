@@ -1,0 +1,15 @@
+version: 2
+
+sources:
+  - name: operational
+    schema: raw_data
+
+    tables:
+      - name: users_extract
+        columns:
+          - name: id
+            tests:
+              - unique
+              - not_null
+
+      - name: pageviews_extract

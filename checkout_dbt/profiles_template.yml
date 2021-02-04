@@ -1,0 +1,13 @@
+checkout_dbt:
+  target: production
+
+  outputs:
+    production:
+      type: redshift
+      host: "{{ env_var('REDSHIFT_HOST') }}"
+      user: "{{ env_var('DBT_USER') }}"
+      pass: "{{ env_var('DBT_PASSWORD') }}"
+      port: "{{ env_var('REDSHIFT_PORT') }}"
+      dbname: "{{ env_var('REDSHIFT_DBNAME') }}"
+      schema: "{{ env_var('REDSHIFT_SCHEMA') }}"
+      threads: 4

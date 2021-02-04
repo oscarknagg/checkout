@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: pageviews_by_current_postcode
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          # An aggregate by hour/postcode should be unique on these two columns
+          combination_of_columns:
+            - hour
+            - postcode
