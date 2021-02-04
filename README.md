@@ -105,7 +105,7 @@ DAG 2: Hourly update
 ```
 # Cron schedule: 0 1-23 * * * (hourly except midnight)
 pageviews_extract = Operator("Incremental load of pageviews data")
-dbt_partial_run = Operator("dbt run -m source:operational.pageviews_extract")
+dbt_partial_run = Operator("dbt run -m source:operational.pageviews_extract+")
 
 pageviews_extract >> dbt_partial_run
 ```
@@ -121,21 +121,27 @@ In this case this is all of the models but in practice its likely to be just a s
 
 The problem with DAG 1 is that it treats the `dbt run` step as a single operation.
 If you have, say, export tasks that send transformed data to a 3rd party these will wait until dbt run is completely
-finished when in fact they may depend on just one dbt model.
+finished when in fact they may depend on just one dbt model and shouldn't have to wait.
 The same goes for tasks that might refresh dashboards in BI tools.
 
 You can split up the `dbt run` operator into a full dag using the `manifest.json` produced after any dbt operation as 
 this file contains the DAG of your dbt project.
 In particular, the `parent_map` key contains the DAG structure
-With a bit of configuration such as registering what downstream tasks depend on which models you can auto-generate
+With a bit of configuration i.e. registering what downstream tasks depend on which models and what operators load
+source tables you can auto-generate your DAG structure!
 ```
+# Pure pseudocode here
 import networkx as nx
+
+# Each node is an operator that runs the particular dbt command
+# for this model/snapshot/source
 dbt_dag_structure: nx.Digraph = parse_dbt_dag('/path/to/manifest.json')
 
 for parent, child in dbt_dag_structure.edges():
     parent >> child
 
 # Add a dashboard refresh task that depends only on one model
+# and not dbt run
 dbt_dag_structure.node['pageviews_by_postcode'] >> Operator("refresh pageviews dashboard")
 ```
 
